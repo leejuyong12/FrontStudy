@@ -181,3 +181,5 @@ type HomeWork3Type = {name : string, phone:number, email:string}
     //3. 멋있게 숙제3에서 만들어둔 type alias를 재활용해봅시다.
 type HomeWork4Type = {under19:boolean}
 type HomeWork34Type = HomeWork3Type & HomeWork4Type
+
+
