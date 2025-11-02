@@ -48,10 +48,26 @@ npm run dev
 //함수 이름은 무조건 파스칼케이스(시작문자는 모두 대문자) ex)MyClass
 //참고) 카멜케이스(소문자로 시작 후 시작문자는 각각 대문자) ex)myVariableName
 
+
+//function 사용하는 것은 함수 선언식(일반적으로 사용)
+// -> export default function Counter (){ ~~  } 이런식으로 바로 export할수 있지만 함수 표현식은 안된다.(export default만 안되는것!) 
+//export const Counter ~~ 이건 된다.
 function Counter() {
+  //상태나 로직이 있는 경우 주로 함수 선언식 사용
   return (
     <button>Counter</button>
   )
+}
+// 변수에 함수를 할당하는 방식 : 함수 표현식
+//UI만 담당하는 컴포넌트일때는 주로 함수 표현식 사용(return 없이)
+const Counter = function(){
+    <button>Counter</button>
+}
+//또는 ES6화살표 함수 문법 사용
+const myFunction = () => {
+  return (
+    <button>Counter</button>
+  )    
 }
 
 function App() {
@@ -66,3 +82,5 @@ function App() {
 }
 ```
 
+- 컴포넌트 jsx 파일에 rsf 입력하면 자동으로 함수 선언식 만들어준다. 
+  - Reactjs code snippets 확장 프로그램 설치해서 가능
