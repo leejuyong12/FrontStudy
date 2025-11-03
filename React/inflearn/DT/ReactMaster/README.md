@@ -84,3 +84,303 @@ function App() {
 
 - 컴포넌트 jsx 파일에 rsf 입력하면 자동으로 함수 선언식 만들어준다. 
   - Reactjs code snippets 확장 프로그램 설치해서 가능
+
+### JSX
+
+- JavaScript XML 의 약어로, Javascript를 확장한 문법을 말한다.
+
+- JavaScript파일을 HTML과 비슷하게 마크업을 작성할 수 있도록 해준다.
+
+- 규칙
+
+  - 하나의 루트 엘리먼트로 반환하기
+
+    - 하나의 부모태그로 감싸줘야 한다.
+
+    ```jsx
+    return(
+    	//<> 이런 태그로 감싸주거나
+    	//<div>태그로 감싸줘야 한다.
+    )
+    
+    
+    ```
+
+  - HTML Attribute(속성)은 대부분 카멜 케이스(ex- className)으로 작성한다.
+
+    ```jsx
+    <div className="name">
+    	
+    </div>
+    ```
+
+  - 변수나 함수를 생성하고 return 내에 중괄호로 값을 넣을 수 있다.
+
+    ```jsx
+    
+    export default function CourseItem(props) {
+    
+    	const title = '입문자를 위한, HTML&CSS 웹 개발 입문';
+    	const description = '웹 개발에 필요한 기본 지식을 배웁니다. ';
+    	const image = './img/htmlcss.png';
+    	const alt = '강의 이미지';
+    	const isEmpty = false;
+    	const course = {
+    		title1 : '두번째',
+    		description1 : '두번째에요'
+    	}
+    	if(isEmpty){
+    		return(
+    			<p>강의가 없습니다.</p>
+    		)
+    	}
+      return (
+        <div>
+    		<article className="course" style={{backgroundColor : 'black', color : 'white'}}>
+                {course.title1}
+    			<img className="course__img" src={image} alt={alt} />
+    			<div className="course__body">
+    				<div className="course__title">{title}</div>
+    				<div className="course__description">{description}</div>
+    			</div>
+    		</article>
+        </div>
+      );
+    }
+    
+    
+    ```
+
+
+
+### props
+
+- 리액트 컴포넌트는 props를 이용해 서로 통신한다.
+- 모든 부모 컴포넌트는 자식 컴포넌트에게 props를 사용하여 정보를 전달할 수 있다.
+
+ex(1)
+
+```jsx
+
+export default function CourseItem({title, description, thumbnail}) {
+
+
+  return (
+    <div>
+		<article className="course">
+			<img className="course__img" src={thumbnail} alt="강의 이미지" />
+			<div className="course__body">
+				<div className="course__title">{title}</div>
+				<div className="course__description">{description}</div>
+			</div>
+		</article>
+    </div>
+  );
+}
+```
+
+```jsx
+import CourseItem from './CourseItem';
+
+function CourseListCard(props) {
+
+  const course1 = {
+    title: '입문자를 위한, HTML&CSS 웹 개발 입문',
+    description: '웹 개발에 필요한 기본 지식을 배웁니다.',
+    thumbnail: '/img/htmlcss.png',
+  };
+  const course2 = {
+    title: '입문자를 위한, ES6+ 최신 자바스크립트 입문',
+    description: '쉽고! 알찬! 내용을 준비했습니다.',
+    thumbnail: '/img/js.png',
+  };
+  const course3 = {
+    title: '포트폴리오 사이트 만들고 배포까지!',
+    description: '포트폴리오 사이트를 만들고 배포해 보세요.',
+    thumbnail: '/img/portfolio.png',
+  };
+
+  return (
+	//style={{backgroundColor : 'black', color : 'white'}
+		<div className="card" >
+			<div className="card__header">강의 목록</div>
+			<div className="card__body">
+				<div className="courses">
+        	<CourseItem title={course1.title} description={course1.description} thumbnail={course1.thumbnail}/>
+			<CourseItem title={course2.title} description={course2.description} thumbnail={course2.thumbnail}/>
+			<CourseItem title={course3.title} description={course3.description} thumbnail={course3.thumbnail}/>
+				</div>
+			</div>
+		</div>
+  );
+}
+
+export default CourseListCard;
+```
+
+
+
+ex(2)
+
+```jsx
+export default function CourseItem({title, description, thumbnail}) {
+
+
+  return (
+    <div>
+		<article className="course">
+			<img className="course__img" src={thumbnail} alt="강의 이미지" />
+			<div className="course__body">
+				<div className="course__title">{title}</div>
+				<div className="course__description">{description}</div>
+			</div>
+		</article>
+    </div>
+  );
+}
+```
+
+```jsx
+import CourseItem from './CourseItem';
+
+function CourseListCard({items}) {
+
+	const [course1, course2, course3] = items;
+  return (
+	//style={{backgroundColor : 'black', color : 'white'}
+		<div className="card" >
+			<div className="card__header">강의 목록</div>
+			<div className="card__body">
+				<div className="courses">
+        	<CourseItem {...course1}/>
+			<CourseItem {...course2}/>
+			<CourseItem {...course3}/>
+				</div>
+			</div>
+		</div>
+  );
+}
+
+export default CourseListCard;
+```
+
+```jsx
+import './App.css'
+import CourseListCard from './components/course/CourseListCard';
+
+function App() {
+
+  const items = [
+    {
+      title: '입문자를 위한, HTML&CSS 웹 개발 입문',
+      description: '웹 개발에 필요한 기본 지식을 배웁니다.',
+      thumbnail: '/img/htmlcss.png',
+    },
+    {
+      title: '입문자를 위한, ES6+ 최신 자바스크립트 입문',
+      description: '쉽고! 알찬! 내용을 준비했습니다.',
+      thumbnail: '/img/js.png',
+    },
+    {
+      title: '포트폴리오 사이트 만들고 배포까지!',
+      description: '포트폴리오 사이트를 만들고 배포해 보세요.',
+      thumbnail: '/img/portfolio.png',
+    }
+
+
+  ]
+  return (
+    <>
+  <main>
+    <CourseListCard items={items}></CourseListCard>
+	</main>
+    </>
+  )
+}
+
+export default App
+
+```
+
+ex(3)
+
+- 컴포넌트 내부에 있는 콘텐츠를 넘기게 되면 children으로 받는다.
+
+```jsx
+export default function Card({title, children}){
+
+    return(
+        <div className="card" >
+            <div className="card__header">{title}</div>
+            <div className="card__body">
+                {children}
+            </div>
+        </div>
+    )
+
+}
+```
+
+```jsx
+import Card from '../Card';
+import CourseItem from './CourseItem';
+
+function CourseListCard({items}) {
+
+	const [course1, course2, course3] = items;
+  return (
+	//style={{backgroundColor : 'black', color : 'white'}
+
+	<Card title="강의 목록">
+		<div className="courses">
+        	<CourseItem {...course1}/>
+			<CourseItem {...course2}/>
+			<CourseItem {...course3}/>
+		</div>
+	</Card>
+
+
+  );
+}
+
+export default CourseListCard;
+```
+
+```jsx
+import './App.css'
+import CourseListCard from './components/course/CourseListCard';
+
+function App() {
+
+  const items = [
+    {
+      title: '입문자를 위한, HTML&CSS 웹 개발 입문',
+      description: '웹 개발에 필요한 기본 지식을 배웁니다.',
+      thumbnail: '/img/htmlcss.png',
+    },
+    {
+      title: '입문자를 위한, ES6+ 최신 자바스크립트 입문',
+      description: '쉽고! 알찬! 내용을 준비했습니다.',
+      thumbnail: '/img/js.png',
+    },
+    {
+      title: '포트폴리오 사이트 만들고 배포까지!',
+      description: '포트폴리오 사이트를 만들고 배포해 보세요.',
+      thumbnail: '/img/portfolio.png',
+    }
+
+
+  ]
+  return (
+    <>
+  <main>
+    <CourseListCard items={items}></CourseListCard>
+	</main>
+    </>
+  )
+}
+
+export default App
+
+```
+
