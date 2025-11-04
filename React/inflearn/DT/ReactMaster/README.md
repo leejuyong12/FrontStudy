@@ -384,3 +384,210 @@ export default App
 
 ```
 
+### 조건부 렌더링
+
+```jsx
+import './App.css'
+import CourseListCard from './components/course/CourseListCard';
+
+function App() {
+
+  const items = [
+    {
+      title: '입문자를 위한, HTML&CSS 웹 개발 입문',
+      description: '웹 개발에 필요한 기본 지식을 배웁니다.',
+      thumbnail: '/img/htmlcss.png',
+      isFavorite: true,
+      link: 'https://inf.run/JxyyT'
+    },
+    {
+      title: '입문자를 위한, ES6+ 최신 자바스크립트 입문',
+      description: '쉽고! 알찬! 내용을 준비했습니다.',
+      thumbnail: '/img/js.png',
+      isFavorite: false,
+      link: 'https://inf.run/Kpnd'
+    },
+    {
+      title: '포트폴리오 사이트 만들고 배포까지!',
+      description: '포트폴리오 사이트를 만들고 배포해 보세요.',
+      thumbnail: '/img/portfolio.png',
+      isFavorite: true,
+      link: 'https://inf.run/YkAN'
+
+    }
+
+
+  ]
+  return (
+    <>
+  <main>
+    <CourseListCard items={items}></CourseListCard>
+	</main>
+    </>
+  )
+}
+
+export default App
+
+```
+
+```jsx
+import Card from '../Card';
+import CourseItem from './CourseItem';
+
+function CourseListCard({items}) {
+
+	const [course1, course2, course3] = items;
+  return (
+	//style={{backgroundColor : 'black', color : 'white'}
+
+	<Card title="강의 목록">
+		<div className="courses">
+        	<CourseItem {...course1}/>
+			<CourseItem {...course2}/>
+			<CourseItem {...course3}/>
+		</div>
+	</Card>
+
+
+  );
+}
+
+export default CourseListCard;
+```
+
+```jsx
+//조건부 렌더링 위해 함수 생성
+//하단에 AND 연산자 참고
+//result = "" && "foo";  -> result에 "" 빈문자열 할당
+//result = 2 && 0;       -> result에 0 할당
+//result = "foo" && 4;   -> result에 4 할당
+
+function HeartIconBtn({isFavorite = false}){
+
+	return(
+		<button className="btn">
+			<img className="btn__img" src={isFavorite ? ("/img/heart-fill-icon.svg") : ("/img/heart-icon.svg")}/>
+			
+		</button>
+	)
+	
+}
+
+function LinkIconBtn({link}){
+	return(
+		<a className="btn" href={link} target="_blank" rel="noreferrer">
+			<img className="btn__img" src="/img/link-icon.svg" alt=""></img>
+		</a>
+	)
+}
+
+export default function CourseItem({title, description, thumbnail, isFavorite, link}) {
+
+  return (
+
+	<article className="course">
+		<img className="course__img" src={thumbnail} alt="강의 이미지" />
+		<div className="course__body">
+			<div className="course__title">{title}</div>
+			<div className="course__description">{description}</div>
+		</div>
+        
+		<div className="course__icons">
+			<HeartIconBtn isFavorite={isFavorite}></HeartIconBtn>
+			{link && <LinkIconBtn link={link}></LinkIconBtn>}
+
+		</div>
+	</article>
+
+  );
+}
+
+
+```
+
+
+
+### 리스트 렌더링
+
+```jsx
+//여러개의 노드를 렌더링 하고 싶을때는 fragment 활용
+
+import { Fragment } from 'react';
+import Card from '../Card';
+import CourseItem from './CourseItem';
+
+function CourseListCard({title, items}) {
+
+  const lastIndex = items.length - 1;
+  return (
+	//style={{backgroundColor : 'black', color : 'white'}
+
+	<Card title={title}>
+		<div className="courses">
+			{items.map((item, index)=> 
+				<Fragment key={item.id}>
+					<CourseItem  {...item}/>
+					{index !== lastIndex -1 && <hr className='divider'></hr>}
+				</Fragment>
+			)}
+		</div>
+	</Card>
+
+
+  );
+}
+
+export default CourseListCard;
+```
+
+```jsx
+import './App.css'
+import CourseListCard from './components/course/CourseListCard';
+
+function App() {
+
+  const items = [
+    {
+      id:0,
+      title: '입문자를 위한, HTML&CSS 웹 개발 입문',
+      description: '웹 개발에 필요한 기본 지식을 배웁니다.',
+      thumbnail: '/img/htmlcss.png',
+      isFavorite: true,
+      link: 'https://inf.run/JxyyT'
+    },
+    {
+      id:1,
+      title: '입문자를 위한, ES6+ 최신 자바스크립트 입문',
+      description: '쉽고! 알찬! 내용을 준비했습니다.',
+      thumbnail: '/img/js.png',
+      isFavorite: true,
+      link: 'https://inf.run/Kpnd'
+    },
+    {
+      id:2,
+      title: '포트폴리오 사이트 만들고 배포까지!',
+      description: '포트폴리오 사이트를 만들고 배포해 보세요.',
+      thumbnail: '/img/portfolio.png',
+      isFavorite: false,
+      link: 'https://inf.run/YkAN'
+
+    }
+
+
+  ]
+  const favoriteItems = items.filter(item => item.isFavorite)
+  return (
+    <>
+  <main style={{flexDirection:'column', gap:'1rem'}}>
+    <CourseListCard title="강의 목록" items={items}></CourseListCard>
+    <CourseListCard title="관심 강의" items={favoriteItems}></CourseListCard>
+	</main>
+    </>
+  )
+}
+
+export default App
+
+```
+
