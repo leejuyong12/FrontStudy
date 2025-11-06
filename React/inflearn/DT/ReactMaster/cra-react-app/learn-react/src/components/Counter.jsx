@@ -19,10 +19,21 @@
 //   )
 // }
 
+import {useState} from 'react';
+
 //ES6화살표 함수 문법 활용
-const Counter = () => {
+const Counter = ({onTotal}) => {
+  const [counter, setCounter] = useState(0);
+  const handleCounter = () => {
+    setCounter(counter+1);  // 이 함수로 3개를 써도 똑같이 +1만 된다. 왜냐하면 스냅샷이기 때문에
+    setCounter((c)=>c+1); // 콜백함수로 쓰면 이거를 여기에 3개쓴다 그러면 +3이 된다
+    if(onTotal){
+      onTotal();
+    }
+
+  }
   return (
-    <button>Counter</button>
+    <button onClick={handleCounter}>Counter : {counter} </button>
   )
 }
 export default Counter;

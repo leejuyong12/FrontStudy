@@ -1,5 +1,7 @@
-import './App.css'
+import './AppCourse.css'
 import CourseListCard from './components/course/CourseListCard';
+import CourseForm from './components/course/CourseForm';
+
 
 function App() {
 
@@ -36,8 +38,10 @@ function App() {
   return (
     <>
   <main style={{flexDirection:'column', gap:'1rem'}}>
+    <CourseForm></CourseForm>
     <CourseListCard title="강의 목록" items={items}></CourseListCard>
-    <CourseListCard title="관심 강의" items={favoriteItems}></CourseListCard>
+    {/* <CourseListCard title="관심 강의" items={favoriteItems}></CourseListCard> */}
+    
 	</main>
     </>
   )
