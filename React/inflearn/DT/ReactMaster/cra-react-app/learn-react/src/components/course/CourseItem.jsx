@@ -1,7 +1,10 @@
-function HeartIconBtn({isFavorite = false}){
+function HeartIconBtn({handleFavorite, isFavorite = false}){
+
 
 	return(
-		<button className="btn">
+		//onClick 안에 () 같이 쓰면 페이지 렌더링 될때 바로 실행됨
+		//<button className="btn" onClick={()=>alert('헬로우')}>
+		<button className="btn" onClick={handleFavorite}>
 			<img className="btn__img" src={isFavorite ? ("/img/heart-fill-icon.svg") : ("/img/heart-icon.svg")}/>
 			
 		</button>
@@ -18,7 +21,9 @@ function LinkIconBtn({link}){
 }
 
 export default function CourseItem({title, description, thumbnail, isFavorite, link}) {
-
+	function handleFavorite(){
+		alert(isFavorite ? '좋아요' : '모르겠어요');
+	}
   return (
 
 	<article className="course">
@@ -28,7 +33,7 @@ export default function CourseItem({title, description, thumbnail, isFavorite, l
 			<div className="course__description">{description}</div>
 		</div>
 		<div className="course__icons">
-			<HeartIconBtn isFavorite={isFavorite}></HeartIconBtn>
+			<HeartIconBtn isFavorite={isFavorite} handleFavorite={handleFavorite}></HeartIconBtn>
 			{link && <LinkIconBtn link={link}></LinkIconBtn>}
 
 		</div>
