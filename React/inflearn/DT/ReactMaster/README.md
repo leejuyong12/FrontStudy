@@ -591,3 +591,344 @@ export default App
 
 ```
 
+
+
+### 이벤트 핸들링
+
+```jsx
+function HeartIconBtn({isFavorite = false}){
+
+	function handleFavorite(){
+		alert(isFavorite ? '좋아요' : '모르겠어요');
+	}
+	return(
+		//onClick 안에 () 같이 쓰면 페이지 렌더링 될때 바로 실행됨
+		//이거도 <button className="btn" onClick={handleFavorite}></button>
+		<button className="btn" onClick={()=>alert('헬로우')}>
+			<img className="btn__img" src={isFavorite ? ("/img/heart-fill-icon.svg") : ("/img/heart-icon.svg")}/>
+			
+		</button>
+	)
+	
+}
+```
+
+- 함수를 props로 넘겨줄수도 있다.
+
+```jsx
+function HeartIconBtn({handleFavorite, isFavorite = false}){
+
+	return(
+		<button className="btn" onClick={handleFavorite}>
+			<img className="btn__img" src={isFavorite ? ("/img/heart-fill-icon.svg") : ("/img/heart-icon.svg")}/>
+			
+		</button>
+	)
+	
+}
+
+
+export default function CourseItem({title, description, thumbnail, isFavorite, link}) {
+    //함수 생성 후 props로 전달됨
+	function handleFavorite(){
+		alert(isFavorite ? '좋아요' : '모르겠어요');
+	}
+  return (
+
+	<article className="course">
+		<img className="course__img" src={thumbnail} alt="강의 이미지" />
+		<div className="course__body">
+			<div className="course__title">{title}</div>
+			<div className="course__description">{description}</div>
+		</div>
+		<div className="course__icons">
+			<HeartIconBtn isFavorite={isFavorite} handleFavorite={handleFavorite}></HeartIconBtn>
+			{link && <LinkIconBtn link={link}></LinkIconBtn>}
+
+		</div>
+	</article>
+
+  );
+}
+```
+
+
+
+#### Deep Copy(깊은 복사)   &  Shallow Copy(얕은 복사)
+
+- **얕은 복사**란 객체의 최상위 속성들만 복사하는 방식으로, 복사된 객체의 속성들은 최상위 속성만 복사되고 중첩된 객체 속성은 원본 객체의 속성과 동일한 참조(레퍼런스)를 공유한다.
+- 즉, 복사본이나 원본을 변경하면 중첩된 객체의 속성(동일한 메모리 주소를 가리킨다)은 서로 영향을 주게 된다.
+
+```jsx
+//얕은 복사
+const original = {
+	name : '홍길동', //최상위 속성-값 자체가 복사됨
+    school:{		//중첩된 객체-주소(참조)만 복사됨
+        ele:'광주',
+        mid:'서울'
+    }
+    place : '서울', //최상위 속성-값 자체가 복사됨
+	info:{			//중첩된 객체-주소(참조)만 복사됨
+		age:30
+	}
+}
+//얕은 복사 방법 1. 스프레드 연산자(...)사용
+const copy = {...original}
+copy.name = '김철수'
+//console 찍어서 확인해보면 원본은 '홍길동', 복사본은 '김철수'로 나온다.
+copy.info.age = 50
+//console 찍어서 확인해보면 원본도 50, 복사본도 50으로 나온다.
+
+//만약 중첩된 객체도 값 자체를 복사하고 싶으면
+const copy = {
+    ...original,
+    info:{
+        ...original.info
+    }
+}
+
+
+//얕은 복사 방법 2. Object.assign() 사용
+const original = {name : '홍길동', info : {age: 30}};
+const copy = Object.assign({}, original);
+
+copy.info.age = 50;
+//console 찍어서 확인해보면 원본도 50, 복사본도 50으로 나온다.
+
+//얕은 복사 방법 3. 배열의 slice(), concat(), Array.from()
+const originalArray = [1, 2, {value : 30}];
+const copyArray = originalArray.slice();
+const copyArray = [].concat(originalArray);
+const copyArray = Array.from(originalArray);
+
+copyArray[2].value = 100;
+//console 찍어서 확인해보면 원본도 50, 복사본도 50으로 나온다.
+
+```
+
+
+
+- **깊은 복사**란 객체의 모든 속성과 중첩된 객체들을 완전히 **새로운 메모리**에 복사하는 방식이다. 그렇기 때문에 원본 객체와 복사된 객체는 어떤 참조도 공유하지 않으므로, 한쪽을 변경해도 다른 쪽에 영향을 주지 않는다.
+
+```jsx
+//깊은 복사
+const original = {
+	name : '홍길동', //최상위 속성
+	info:{			//중첩된 객체
+		age:30
+	}
+}
+//깊은 복사 방법 1. JSON.stringify() + JSON.parse() 사용
+const copy = JSON.parse(JSON.stringify(original));
+copy.info.age = 50; //복사본만 바뀜
+
+//다른 최신 방법들 있는데 그냥 이거 쓰자.
+```
+
+- Deep Copy 와 Shallow Copy의 사용 사례와 주의점
+
+  - 얕은 복사 활용 사례
+
+    - 최상위 속성만 변경이 필요한 경우
+    - 성능이 중요한 경우(깊은 복사보다 빠름)
+    - 중첩된 객체가 없거나 변경할 필요가 없는 경우
+
+  - 깊은 복사 활용 사례
+
+    - 상태 관리 라이브러리(Redux, MobX 등)에서 불변성 유지
+    - 원본 데이터를 보존하면서 여러 변형을 시도해야 할 때
+    - 복잡한 객체 구조에서 독립적인 사본이 필요할 때
+
+    
+
+(추가.) 참조할당
+
+```jsx
+const original = {
+	name : '홍길동', //최상위 속성
+	info:{			//중첩된 객체
+		age:30
+	}
+}
+//참조할당
+const copy = original;
+
+copy.name = '김철수';
+copy.info.age = 50;
+
+//console 찍어보면 original과 copy는 같은 값이 나온다. 그 이유는 참조할당은 같은 주소값을 바라보기 때문에!
+```
+
+
+
+#### 중첩된 객체 평탄화
+
+- immer 사용
+
+```
+npm i use-immer  로 설치
+```
+
+* 일단 immer 사용 전 코드(useState 사용)
+
+```jsx
+import Card from '../Card';
+import {useState} from 'react';
+
+export default function CourseForm(){
+  const [form, setForm] = useState({
+    title:'리액트 강의',
+    description: '리액트 기초부터 실전까지',
+    info:{
+      level:1,
+      skill: 'React'
+    }
+  })
+  function handleCourseForm(e){
+    e.preventDefault();
+  }
+  const handleChange = (e) =>{
+    setForm({
+      ...form,
+      [e.target.name] : e.target.value
+      //description:form.description
+    });
+  }
+  const handleSkillChange = (e) =>{
+    setForm({
+      ...form,
+      info:{
+        ...form.info,
+        skill:e.target.value
+      }
+    })
+  }
+  const handleLevelChange = (e) =>{
+    setForm({
+      ...form,
+      info:{
+        ...form.info,
+        level:e.target.value
+      }
+    })
+  }
+  return(
+    <Card title="강의 등록">
+      <form style={{display:'flex', flexDirection:'column', gap:'1rem'}} onSubmit={handleCourseForm}>
+        <input name="title" type="text" placeholder="강의 제목" title={form.title} onChange={handleChange}/>
+        <input name="description" type="text" placeholder="강의 한줄 설명" description={form.description} onChange={handleChange}/>
+        <div style={{display:"flex", alignItems:'center'}}>
+          <label htmlFor="skill" style={{width:'100px'}}>스킬</label>
+          <input name="skill" id="skill" type="text" value={form.info.skill} onChange={handleSkillChange}></input>
+        </div>
+        <div style={{display:"flex", alignItems:'center'}}>
+          <label htmlFor="skill" style={{width:'100px'}}>난이도</label>
+          <select name="level" id="level" value={form.info.level} onChange={handleLevelChange}>
+            <option value="0">입문</option>
+            <option value="1">초급</option>
+            <option value="2">중금</option>
+          </select>
+        </div>
+        <input type="submit" placeholder="등록"/>
+        {(form.title || form.description) && (
+          <div style={{marginTop: '16px', padding: '16px', backgroundColor: '#eee', borderRadius: '6px' }}>
+            {form.title && (<p>제목 - {form.title}</p>)}
+            {form.description && (<p>설명 - {form.description}</p>)}
+            {form.info.skill && (<p>스킬 - {form.info.skill}</p>)}
+            {form.info.level && (<p>레벨 - {form.info.level}</p>)} 
+          </div>
+        )}
+        </form>
+    </Card>
+  )
+}
+```
+
+- useImmer 사용 후
+  - 밑에 코드를 보면 draft.info.skill = e.target.value; 이렇게 setter함수 안쓰고 바로 값을 수정했는데, 이렇게 할 수 있는 이유는 immer는 내부적으로 어떻게 변경되었는지 알아내어 새로운 객체를 반환해주기 때문에 가능하다.
+
+```jsx
+import Card from '../Card';
+import {useImmer} from 'use-immer';
+import {useState} from 'react';
+
+export default function CourseForm(){
+  const [form, updateForm] = useImmer({
+  //const [form, setForm] = useState({
+    title:'리액트 강의',
+    description: '리액트 기초부터 실전까지',
+    info:{
+      level:1,
+      skill: 'React'
+    }
+  })
+  function handleCourseForm(e){
+    e.preventDefault();
+  }
+  const handleChange = (e) =>{
+    updateForm((draft)=>{
+        draft[e.target.name] = e.target.value;
+    })
+    // setForm({
+    //   ...form,
+    //   [e.target.name] : e.target.value
+    //   //description:form.description
+    // });
+  }
+  const handleSkillChange = (e) =>{
+    updateForm((draft)=>{
+      draft.info.skill = e.target.value;
+    })
+    // setForm({
+    //   ...form,
+    //   info:{
+    //     ...form.info,
+    //     skill:e.target.value
+    //   }
+    // })
+  }
+  const handleLevelChange = (e) =>{
+    updateForm((draft)=>{
+      draft.info.level = e.target.value;
+    })
+    // setForm({
+    //   ...form,
+    //   info:{
+    //     ...form.info,
+    //     level:e.target.value
+    //   }
+    // })
+  }
+  return(
+    <Card title="강의 등록">
+      <form style={{display:'flex', flexDirection:'column', gap:'1rem'}} onSubmit={handleCourseForm}>
+        <input name="title" type="text" placeholder="강의 제목" title={form.title} onChange={handleChange}/>
+        <input name="description" type="text" placeholder="강의 한줄 설명" description={form.description} onChange={handleChange}/>
+        <div style={{display:"flex", alignItems:'center'}}>
+          <label htmlFor="skill" style={{width:'100px'}}>스킬</label>
+          <input name="skill" id="skill" type="text" value={form.info.skill} onChange={handleSkillChange}></input>
+        </div>
+        <div style={{display:"flex", alignItems:'center'}}>
+          <label htmlFor="skill" style={{width:'100px'}}>난이도</label>
+          <select name="level" id="level" value={form.info.level} onChange={handleLevelChange}>
+            <option value="0">입문</option>
+            <option value="1">초급</option>
+            <option value="2">중급</option>
+          </select>
+        </div>
+        <input type="submit" placeholder="등록"/>
+        {(form.title || form.description) && (
+          <div style={{marginTop: '16px', padding: '16px', backgroundColor: '#eee', borderRadius: '6px' }}>
+            {form.title && (<p>제목 - {form.title}</p>)}
+            {form.description && (<p>설명 - {form.description}</p>)}
+            {form.info.skill && (<p>스킬 - {form.info.skill}</p>)}
+            {form.info.level && (<p>레벨 - {form.info.level}</p>)} 
+          </div>
+        )}
+        </form>
+    </Card>
+  )
+}
+
+```
+
