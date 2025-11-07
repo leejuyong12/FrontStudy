@@ -9,7 +9,7 @@ function TodoList({todos = [], onDeleteTodo, onToggleTodo}){
             checked={item.done}
             onChange={(e)=> onToggleTodo(item.id, e.target.checked)}
           />
-          <span>{item.text}</span>
+          <span>{ item.done ? <del>{item.text}</del> : item.text}</span>
           <button
             onClick={()=> onDeleteTodo(item.id)}
           >X</button>

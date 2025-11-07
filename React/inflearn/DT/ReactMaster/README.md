@@ -932,3 +932,850 @@ export default function CourseForm(){
 
 ```
 
+
+
+### 배열 업데이트
+
+```jsx
+function TodoList({todos = [], onDeleteTodo, onToggleTodo}){
+
+  return(
+    <ul>
+      {todos.map(item =>(
+        <li key={item.id}>
+          <input 
+            type="checkbox"
+            checked={item.done}
+            onChange={(e)=> onToggleTodo(item.id, e.target.checked)}
+          />
+          <span>{ item.done ? <del>{item.text}</del> : item.text}</span>
+          <button
+            onClick={()=> onDeleteTodo(item.id)}
+          >X</button>
+        </li>
+      ))}
+    </ul>
+  )
+
+}
+export default TodoList;
+```
+
+
+
+```jsx
+import './App.css'
+import {useState} from 'react'
+import TodoList from './components/todo/TodoList';
+
+
+const initialList = [
+    {id:0, text:"HTML&CSS 공부하기", done:false},
+    {id:1, text:"자바스크립트 공부하기", done:false}
+  ];
+
+
+
+function AppTodo(props) {
+  const [todoText, setTodoText] = useState('');
+
+  const [todos, setTodos] = useState(initialList);
+
+
+  const [insertAt, setInsertAt] = useState(todos.length - 1);
+
+
+  const handleTodoTextChange = (e) => {
+      setTodoText(e.target.value);
+  }
+  //꼭! 새 배열 복사해서 넣기
+  const handleAddTodo = () =>{
+    const nextId = todos.length;
+    setTodos([
+      ...todos,
+      {id : nextId, text: todoText}
+    ])
+    //여기서 input 내에 있는 값을 빈값으로 만들어주면 된다.
+    setTodoText('');
+  }
+
+  const handleAddTodoByIndex = () => {
+    const nextId = todos.length;
+    const newTodos = [
+      //삽입 지점 이전 항목
+      //0부터 insertAt까지 잘라낸다.
+      ...todos.slice(0, insertAt),
+      {id:nextId, text: todoText, done:false},
+      //삽입 지점 이후 항목
+      ...todos.slice(insertAt)
+
+    ];
+    setTodos(newTodos);
+    setTodoText('');
+  }
+
+  //기능을 자식 컴포넌트에서 만들 생각하지말고
+  //부모 컴포넌트에서 props로 기능을 내려주면 된다.
+  //삭제 기능
+  const handleDeleteTodo = (deleteId) =>{
+    //filter 문법 확인!
+    //해당하는 id의 값을 빼는거라고 생각하지말고
+    //해당하는 id의 값만 빼고 반환하기
+    const newTodos = todos.filter(item => item.id !== deleteId);
+    setTodos(newTodos);
+  }
+  //input에 포커스 되어있을때 enter키 누르면 추가되는 기능
+  const handleKeyDown = (e) =>{
+    if(e.key === "Enter"){
+      handleAddTodo();
+    }
+  }
+  //done여부를 true/false 바꾸는 기능
+  const handleToggleTodo = (id, done) =>{
+    //기존 배열 안의 객체 속성을 변경!
+    
+    const nextTodos = todos.map(item => {
+      if(item.id === id){
+        return {...item, done};
+      }
+      return item;
+    })
+    setTodos(nextTodos);
+  }
+  //배열 순서 뒤바꿈(꼭! reverse는 원본내용을 바꿔버리니까 원본을 복사해서 사용하자)
+  const handleReverse = () => {
+    //아래 주석처리된 내용은 reverse 사용시!
+    // const nextTodos = [...todos];
+    // nextTodos.reverse();
+    // setTodos(nextTodos);
+    
+    //2023 최신 API에서는 toReversed 사용하면 배열의 순서를 거꾸로 한 새로운 배열을 반환한다.
+    setTodos(todos.toReversed());
+  }
+
+  return (
+    <div>
+      <h2>할일목록</h2>
+      <div>
+        <input 
+          type="text" 
+          value={todoText} 
+          onChange={handleTodoTextChange} 
+          onKeyDown={handleKeyDown}></input>
+        <button onClick={handleAddTodo}>추가</button>
+      </div>
+      <div>
+        <select value={insertAt} onChange={(e) => setInsertAt(e.target.value)}>
+          {todos.map((item, index)=>(
+            <option key={item.id} value={index}>{index} 번째</option>
+          ))}
+        </select>
+        <button onClick={handleAddTodoByIndex}>{insertAt} 번째 추가</button>
+      </div>
+      <div>Preview : {todoText}</div>
+      <button onClick={handleReverse}>Reverse</button>
+      <TodoList 
+      todos={todos}
+      onDeleteTodo={handleDeleteTodo}
+      onToggleTodo={handleToggleTodo}
+      />
+    </div>
+  );
+}
+
+export default AppTodo;
+```
+
+
+
+```jsx
+import './AppCourse.css'
+import CourseListCard from './components/course/CourseListCard';
+import CourseForm from './components/course/CourseForm';
+import {useState} from 'react';
+import {useImmer} from 'use-immer';
+function App() {
+
+  const [items, setItems] = useState([
+    {
+      id:0,
+      title: '입문자를 위한, HTML&CSS 웹 개발 입문',
+      description: '웹 개발에 필요한 기본 지식을 배웁니다.',
+      thumbnail: '/img/htmlcss.png',
+      isFavorite: true,
+      link: 'https://inf.run/JxyyT'
+    },
+    {
+      id:1,
+      title: '입문자를 위한, ES6+ 최신 자바스크립트 입문',
+      description: '쉽고! 알찬! 내용을 준비했습니다.',
+      thumbnail: '/img/js.png',
+      isFavorite: true,
+      link: 'https://inf.run/Kpnd'
+    },
+    {
+      id:2,
+      title: '포트폴리오 사이트 만들고 배포까지!',
+      description: '포트폴리오 사이트를 만들고 배포해 보세요.',
+      thumbnail: '/img/portfolio.png',
+      isFavorite: false,
+      link: 'https://inf.run/YkAN'
+
+    }
+
+
+  ])
+  const favoriteItems = items.filter(item => item.isFavorite)
+
+  const handleFavoriteChange = (id, isFavorite) => {
+    const newItems = items.map(item => {
+      if(item.id === id){
+        return {
+          ...item,
+          isFavorite
+        }
+      }
+      return item;
+    })
+    setItems(newItems);
+  }
+
+  return (
+    <>
+  <main style={{flexDirection:'column', gap:'1rem'}}>
+    <CourseForm></CourseForm>
+    <CourseListCard title="강의 목록" items={items} onFavorite={handleFavoriteChange}></CourseListCard>
+    {/* <CourseListCard title="관심 강의" items={favoriteItems}></CourseListCard> */}
+    
+	</main>
+    </>
+  )
+}
+
+export default App
+
+```
+
+```jsx
+import { Fragment } from 'react';
+import Card from '../Card';
+import CourseItem from './CourseItem';
+
+function CourseListCard({title, items, onFavorite}) {
+
+  const lastIndex = items.length - 1;
+  return (
+	//style={{backgroundColor : 'black', color : 'white'}
+
+	<Card title={title}>
+		<div className="courses">
+			{items.map((item, index)=> 
+				<Fragment key={item.id}>
+					<CourseItem  {...item} onFavorite={onFavorite}/>
+					{index !== lastIndex -1 && <hr className='divider'></hr>}
+				</Fragment>
+			)}
+		</div>
+	</Card>
+
+
+  );
+}
+
+export default CourseListCard;
+```
+
+```jsx
+function HeartIconBtn({onClick, isFavorite = false}){
+
+
+	return(
+		//onClick 안에 () 같이 쓰면 페이지 렌더링 될때 바로 실행됨
+		//<button className="btn" onClick={()=>alert('헬로우')}>
+		//<button className="btn" onClick={handleFavorite}>
+			<button className="btn" onClick={(e)=> onClick(e)}>
+			<img className="btn__img" src={isFavorite ? ("/img/heart-fill-icon.svg") : ("/img/heart-icon.svg")}/>
+			
+		</button>
+	)
+	
+}
+
+function LinkIconBtn({link}){
+	return(
+		<a className="btn" href={link} target="_blank" rel="noreferrer">
+			<img className="btn__img" src="/img/link-icon.svg" alt=""></img>
+		</a>
+	)
+}
+
+export default function CourseItem({title, description, thumbnail, isFavorite, link, id, onFavorite}) {
+	function handleFavorite(e){
+		e.stopPropagation();
+		onFavorite(id, !isFavorite);
+		//alert(isFavorite ? '좋아요' : '모르겠어요');
+	}
+
+	function handleItemClick(e){
+		e.stopPropagation();
+		alert('item click ~!');
+		open(link, '_blank');
+	}
+  return (
+
+	<article className="course" onClick={handleItemClick}>
+		<img className="course__img" src={thumbnail} alt="강의 이미지" />
+		<div className="course__body">
+			<div className="course__title">{title}</div>
+			<div className="course__description">{description}</div>
+		</div>
+		<div className="course__icons">
+			<HeartIconBtn isFavorite={isFavorite} onClick={handleFavorite}></HeartIconBtn>
+			{link && <LinkIconBtn link={link}></LinkIconBtn>}
+
+		</div>
+	</article>
+
+  );
+}
+
+
+```
+
+- useImmer로 사용한 버전
+
+```jsx
+import './AppCourse.css'
+import CourseListCard from './components/course/CourseListCard';
+import CourseForm from './components/course/CourseForm';
+import {useState} from 'react';
+import {useImmer} from 'use-immer';
+function App() {
+
+  const [items, updateItems] = useImmer([
+    {
+      id:0,
+      title: '입문자를 위한, HTML&CSS 웹 개발 입문',
+      description: '웹 개발에 필요한 기본 지식을 배웁니다.',
+      thumbnail: '/img/htmlcss.png',
+      isFavorite: true,
+      link: 'https://inf.run/JxyyT'
+    },
+    {
+      id:1,
+      title: '입문자를 위한, ES6+ 최신 자바스크립트 입문',
+      description: '쉽고! 알찬! 내용을 준비했습니다.',
+      thumbnail: '/img/js.png',
+      isFavorite: true,
+      link: 'https://inf.run/Kpnd'
+    },
+    {
+      id:2,
+      title: '포트폴리오 사이트 만들고 배포까지!',
+      description: '포트폴리오 사이트를 만들고 배포해 보세요.',
+      thumbnail: '/img/portfolio.png',
+      isFavorite: false,
+      link: 'https://inf.run/YkAN'
+
+    }
+
+
+  ])
+  const favoriteItems = items.filter(item => item.isFavorite)
+
+  const handleFavoriteChange = (id, isFavorite) => {
+    updateItems((draft) => {
+      const targetItem = draft.find(item => item.id === id);
+      targetItem.isFavorite = isFavorite; 
+    })
+    // const newItems = items.map(item => {
+    //   if(item.id === id){
+    //     return {
+    //       ...item,
+    //       isFavorite
+    //     }
+    //   }
+    //   return item;
+    // })
+    // setItems(newItems);
+  }
+
+  return (
+    <>
+  <main style={{flexDirection:'column', gap:'1rem'}}>
+    <CourseForm></CourseForm>
+    <CourseListCard title="강의 목록" items={items} onFavorite={handleFavoriteChange}></CourseListCard>
+    {/* <CourseListCard title="관심 강의" items={favoriteItems}></CourseListCard> */}
+    
+	</main>
+    </>
+  )
+}
+
+export default App
+
+```
+
+
+
+
+
+### state로직을 reducer로 작성하기
+
+- 한 컴포넌트에서  state 업데이트가 여러 이벤트 핸들러로 분산되는 경우가 있다. 이 경우 컴포넌트를 관리하기 어려워진다. 이 문제 해결을 위해 state를 업데이트하는 모든 로직을 reducer를 사용해 컴포넌트 외부로 단일 함수로 통합해 관리할 수 있다.
+
+- switch 문을 사용하는게 일반적이다.
+
+- reducer 폴더에 todo-reducer.js로 만들었다.
+
+```
+import {useReducer, useState} from 'react'
+
+
+  //reducer 활용
+  const [todos, dispatch] = useReducer(todoReducer, [
+    {id:0, text:"HTML&CSS 공부하기", done:false},
+    {id:1, text:"자바스크립트 공부하기", done:false}
+  ])
+  
+  //밑에서 각 기능에 dispatch 해주기
+  
+  //reducer.js 파일 만들어서 각 본 기능을 넣어주기(switch문 활용)
+```
+
+```jsx
+function yourReducer(state, action) {
+  // React가 설정하게될 다음 state 값을 반환합니다.
+}
+
+//reducer 함수는 state에 대한 로직을 넣는 곳입니다. 이 함수는 현재의 state 값과 action 객체, 이렇게 두 개의 인자를 받고 다음 state 값을 반환합니다.
+```
+
+
+
+
+
+```jsx
+export default function todoReducer(todos, action){
+
+    //type
+    switch(action.type){
+      case 'added':{
+        const {nextId, todoText} = action;
+        return [
+          ...todos,
+          {id : nextId, text: todoText, done:false}
+        ];
+      }
+      case 'added_index':{
+        const {insertAt, nextId, todoText} = action;
+        return [
+          //삽입 지점 이전 항목
+          //0부터 insertAt까지 잘라낸다.
+          ...todos.slice(0, insertAt),
+          {id:nextId, text: todoText, done:false},
+          //삽입 지점 이후 항목
+          ...todos.slice(insertAt)          
+        ];
+      }
+      case 'deleted':{
+        const {deleteId} = action
+        return todos.filter(item => item.id !== deleteId);
+      }
+      case 'done':{
+        const {id, done} = action;
+        return todos.map(item => {
+              if(item.id === id){
+                return {...item, done};
+              }
+              return item;
+            })
+      }
+      case 'reverse':{
+          return todos.toReversed();
+      }
+      default:{
+        throw Error('알 수 없는 액션 타입 : ' +  action.type);
+      }
+    }
+}
+```
+
+```jsx
+//AppTodo.jsx
+
+import './App.css'
+import {useReducer, useState} from 'react'
+import TodoList from './components/todo/TodoList';
+import todoReducer from './reducer/todo-reducer';
+
+function AppTodo(props) {
+  const [todoText, setTodoText] = useState('');
+
+  //reducer 활용
+  const [todos, dispatch] = useReducer(todoReducer, [
+    {id:0, text:"HTML&CSS 공부하기", done:false},
+    {id:1, text:"자바스크립트 공부하기", done:false}
+  ])
+
+
+
+  const [insertAt, setInsertAt] = useState(todos.length - 1);
+
+
+  const handleTodoTextChange = (e) => {
+      setTodoText(e.target.value);
+  }
+  //꼭! 새 배열 복사해서 넣기
+  const handleAddTodo = () =>{
+    dispatch({
+      type:'added',
+      nextId:todos.length,
+      todoText
+    })
+
+    //아래 코드를 dispatch로 바꿈
+    // const nextId = todos.length;
+    // setTodos([
+    //   ...todos,
+    //   {id : nextId, text: todoText, done:false}
+    // ])
+    
+    //여기서 input 내에 있는 값을 빈값으로 만들어주면 된다.
+    setTodoText('');
+  }
+
+  const handleAddTodoByIndex = () => {
+
+    dispatch({
+      type:'added_index',
+      insertAt,
+      nextId:todos.length,
+      todoText
+    })
+    //아래 코드를 dispatch로 바꿈
+    // const nextId = todos.length;
+    // const newTodos = [
+    //   //삽입 지점 이전 항목
+    //   //0부터 insertAt까지 잘라낸다.
+    //   ...todos.slice(0, insertAt),
+    //   {id:nextId, text: todoText, done:false},
+    //   //삽입 지점 이후 항목
+    //   ...todos.slice(insertAt)
+
+    // ];
+    // setTodos(newTodos);
+    setTodoText('');
+  }
+
+  //기능을 자식 컴포넌트에서 만들 생각하지말고
+  //부모 컴포넌트에서 props로 기능을 내려주면 된다.
+  //삭제 기능
+  const handleDeleteTodo = (deleteId) =>{
+
+    dispatch({
+      type:'deleted',
+      deleteId
+    })
+    //filter 문법 확인!
+    //해당하는 id의 값을 빼는거라고 생각하지말고
+    //해당하는 id의 값만 빼고 반환하기
+    // 아래 코드 dispatch 로 바꿈
+    // const newTodos = todos.filter(item => item.id !== deleteId);
+    // setTodos(newTodos);
+  }
+  //input에 포커스 되어있을때 enter키 누르면 추가되는 기능
+  const handleKeyDown = (e) =>{
+    if(e.key === "Enter"){
+      handleAddTodo();
+    }
+  }
+  //done여부를 true/false 바꾸는 기능
+  const handleToggleTodo = (id, done) =>{
+    // 아래 코드 dispatch 로 바꿈
+    dispatch({
+      type:'done',
+      id,
+      done
+    })
+    //기존 배열 안의 객체 속성을 변경!
+    // const nextTodos = todos.map(item => {
+    //   if(item.id === id){
+    //     return {...item, done};
+    //   }
+    //   return item;
+    // })
+    // setTodos(nextTodos);
+  }
+  //배열 순서 뒤바꿈(꼭! reverse는 원본내용을 바꿔버리니까 원본을 복사해서 사용하자)
+  const handleReverse = () => {
+    // 아래 코드 dispatch 로 바꿈
+    dispatch({
+      type:'reverse'
+    })
+
+
+    //아래 주석처리된 내용은 reverse 사용시!
+    // const nextTodos = [...todos];
+    // nextTodos.reverse();
+    // setTodos(nextTodos);
+    
+    //2023 최신 API에서는 toReversed 사용하면 배열의 순서를 거꾸로 한 새로운 배열을 반환한다.
+    //setTodos(todos.toReversed());
+  }
+
+  return (
+    <div>
+      <h2>할일목록</h2>
+      <div>
+        <input 
+          type="text" 
+          value={todoText} 
+          onChange={handleTodoTextChange} 
+          onKeyDown={handleKeyDown}></input>
+        <button onClick={handleAddTodo}>추가</button>
+      </div>
+      <div>
+        <select value={insertAt} onChange={(e) => setInsertAt(e.target.value)}>
+          {todos.map((item, index)=>(
+            <option key={item.id} value={index}>{index} 번째</option>
+          ))}
+        </select>
+        <button onClick={handleAddTodoByIndex}>{insertAt} 번째 추가</button>
+      </div>
+      <div>Preview : {todoText}</div>
+      <button onClick={handleReverse}>Reverse</button>
+      <TodoList 
+      todos={todos}
+      onDeleteTodo={handleDeleteTodo}
+      onToggleTodo={handleToggleTodo}
+      />
+    </div>
+  );
+}
+
+export default AppTodo;
+
+
+```
+
+
+
+* immer를 활용한 버전
+
+```jsx
+import './App.css'
+import {useReducer, useState} from 'react'
+import TodoList from './components/todo/TodoList';
+import todoReducer from './reducer/todo-reducer';
+import {useImmerReducer} from 'use-immer';
+
+
+
+
+function AppTodo(props) {
+  const [todoText, setTodoText] = useState('');
+
+  //reducer 활용
+  const [todos, dispatch] = useImmerReducer(todoReducer, [
+  //const [todos, dispatch] = useReducer(todoReducer, [
+    {id:0, text:"HTML&CSS 공부하기", done:false},
+    {id:1, text:"자바스크립트 공부하기", done:false}
+  ])
+
+
+
+  const [insertAt, setInsertAt] = useState(todos.length - 1);
+
+
+  const handleTodoTextChange = (e) => {
+      setTodoText(e.target.value);
+  }
+  //꼭! 새 배열 복사해서 넣기
+  const handleAddTodo = () =>{
+    dispatch({
+      type:'added',
+      nextId:todos.length,
+      todoText
+    })
+
+    //아래 코드를 dispatch로 바꿈
+    // const nextId = todos.length;
+    // setTodos([
+    //   ...todos,
+    //   {id : nextId, text: todoText, done:false}
+    // ])
+    
+    //여기서 input 내에 있는 값을 빈값으로 만들어주면 된다.
+    setTodoText('');
+  }
+
+  const handleAddTodoByIndex = () => {
+
+    dispatch({
+      type:'added_index',
+      insertAt,
+      nextId:todos.length,
+      todoText
+    })
+    //아래 코드를 dispatch로 바꿈
+    // const nextId = todos.length;
+    // const newTodos = [
+    //   //삽입 지점 이전 항목
+    //   //0부터 insertAt까지 잘라낸다.
+    //   ...todos.slice(0, insertAt),
+    //   {id:nextId, text: todoText, done:false},
+    //   //삽입 지점 이후 항목
+    //   ...todos.slice(insertAt)
+
+    // ];
+    // setTodos(newTodos);
+    setTodoText('');
+  }
+
+  //기능을 자식 컴포넌트에서 만들 생각하지말고
+  //부모 컴포넌트에서 props로 기능을 내려주면 된다.
+  //삭제 기능
+  const handleDeleteTodo = (deleteId) =>{
+
+    dispatch({
+      type:'deleted',
+      deleteId
+    })
+    //filter 문법 확인!
+    //해당하는 id의 값을 빼는거라고 생각하지말고
+    //해당하는 id의 값만 빼고 반환하기
+    // 아래 코드 dispatch 로 바꿈
+    // const newTodos = todos.filter(item => item.id !== deleteId);
+    // setTodos(newTodos);
+  }
+  //input에 포커스 되어있을때 enter키 누르면 추가되는 기능
+  const handleKeyDown = (e) =>{
+    if(e.key === "Enter"){
+      handleAddTodo();
+    }
+  }
+  //done여부를 true/false 바꾸는 기능
+  const handleToggleTodo = (id, done) =>{
+    // 아래 코드 dispatch 로 바꿈
+    dispatch({
+      type:'done',
+      id,
+      done
+    })
+    //기존 배열 안의 객체 속성을 변경!
+    // const nextTodos = todos.map(item => {
+    //   if(item.id === id){
+    //     return {...item, done};
+    //   }
+    //   return item;
+    // })
+    // setTodos(nextTodos);
+  }
+  //배열 순서 뒤바꿈(꼭! reverse는 원본내용을 바꿔버리니까 원본을 복사해서 사용하자)
+  const handleReverse = () => {
+    // 아래 코드 dispatch 로 바꿈
+    dispatch({
+      type:'reverse'
+    })
+
+
+    //아래 주석처리된 내용은 reverse 사용시!
+    // const nextTodos = [...todos];
+    // nextTodos.reverse();
+    // setTodos(nextTodos);
+    
+    //2023 최신 API에서는 toReversed 사용하면 배열의 순서를 거꾸로 한 새로운 배열을 반환한다.
+    //setTodos(todos.toReversed());
+  }
+
+  return (
+    <div>
+      <h2>할일목록</h2>
+      <div>
+        <input 
+          type="text" 
+          value={todoText} 
+          onChange={handleTodoTextChange} 
+          onKeyDown={handleKeyDown}></input>
+        <button onClick={handleAddTodo}>추가</button>
+      </div>
+      <div>
+        <select value={insertAt} onChange={(e) => setInsertAt(e.target.value)}>
+          {todos.map((item, index)=>(
+            <option key={item.id} value={index}>{index} 번째</option>
+          ))}
+        </select>
+        <button onClick={handleAddTodoByIndex}>{insertAt} 번째 추가</button>
+      </div>
+      <div>Preview : {todoText}</div>
+      <button onClick={handleReverse}>Reverse</button>
+      <TodoList 
+      todos={todos}
+      onDeleteTodo={handleDeleteTodo}
+      onToggleTodo={handleToggleTodo}
+      />
+    </div>
+  );
+}
+
+export default AppTodo;
+```
+
+```jsx
+export default function todoReducer(draft, action){
+//export default function todoReducer(todos, action){
+
+    
+    //type
+    switch(action.type){
+      case 'added':{
+        const {nextId, todoText} = action;
+        draft.push({id : nextId, text: todoText, done:false});
+        break;
+        // return [
+        //   ...todos,
+        //   {id : nextId, text: todoText, done:false}
+        // ];
+      }
+      case 'added_index':{
+        const {insertAt, nextId, todoText} = action;
+        //array.splice(startIndex(변경을 시작할 인덱스), deleteCount(삭제할 요소 개수), ...itemsToAdd(추가할 요소 (선택)))
+        draft.splice(insertAt, 0, {id:nextId, text: todoText, done:false});
+        break;
+        // return [
+        //   //삽입 지점 이전 항목
+        //   //0부터 insertAt까지 잘라낸다.
+        //   ...todos.slice(0, insertAt),
+        //   {id:nextId, text: todoText, done:false},
+        //   //삽입 지점 이후 항목
+        //   ...todos.slice(insertAt)          
+        // ];
+      }
+      case 'deleted':{
+        const {deleteId} = action
+        return draft.filter(item => item.id !== deleteId);
+        //return todos.filter(item => item.id !== deleteId);
+      }
+      case 'done':{
+        const {id, done} = action;
+        const target = draft.find(item => item.id === id);
+        target.done = done;
+        // return todos.map(item => {
+        //       if(item.id === id){
+        //         return {...item, done};
+        //       }
+        //       return item;
+        //     })
+      }
+      case 'reverse':{
+        return draft.toReversed();
+        //return todos.toReversed();
+      }
+      default:{
+        throw Error('알 수 없는 액션 타입 : ' +  action.type);
+      }
+    }
+}
+```
+

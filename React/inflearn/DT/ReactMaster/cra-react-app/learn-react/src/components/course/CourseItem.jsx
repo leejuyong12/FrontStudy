@@ -21,10 +21,11 @@ function LinkIconBtn({link}){
 	)
 }
 
-export default function CourseItem({title, description, thumbnail, isFavorite, link}) {
+export default function CourseItem({title, description, thumbnail, isFavorite, link, id, onFavorite}) {
 	function handleFavorite(e){
 		e.stopPropagation();
-		alert(isFavorite ? '좋아요' : '모르겠어요');
+		onFavorite(id, !isFavorite);
+		//alert(isFavorite ? '좋아요' : '모르겠어요');
 	}
 
 	function handleItemClick(e){
