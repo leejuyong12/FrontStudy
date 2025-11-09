@@ -1779,3 +1779,99 @@ export default function todoReducer(draft, action){
 }
 ```
 
+
+
+### Context API
+
+- props drilling 문제를 해결할 수 있다.
+- 멀리 떨어진 컴포넌트에 데이터를 제공할 수 있다.
+
+- 가장 가까운 부모 컴포넌트에서 값을 가져온다. (중요)
+- 자주 변경되지 않는 데이터를 사용하는 것이 좋다.
+  - 값이 바뀌면 리렌더링이 되는데 루트 컴포넌트에서 값이 변경되어버리면 하위 컴포넌트 모두 다 리렌더링 되기 때문에 성능면에서 안좋다.
+
+- props를 계속 내려준다고 해서 나쁜건 아니다. 그래서 props로 해보고 나서 context 활용 생각해보기.
+
+
+
+1. Context 생성하기 - 2.  Context 사용하기 - 3. Context 제공하기
+
+```jsx
+import { createContext, useState } from "react";
+//context 생성
+export const  DarkModeContext = createContext();
+
+//바로 provider로 보낼수 있다.
+export const DarkModeProvider = ({children, initDarkMode = true}) => {
+
+  const [darkMode, setDarkMode] = useState(initDarkMode);
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  }
+  return(
+    <DarkModeContext.Provider value={{darkMode, toggleDarkMode}}>
+      {children}
+    </DarkModeContext.Provider>
+  )
+}
+```
+
+
+
+```jsx
+import './AppTheme.css';
+import HeaderTheme from './components/theme/Header.jsx';
+import MainTheme from './components/theme/Main.jsx';
+import FooterTheme from './components/theme/Footer.jsx';
+import { DarkModeProvider } from './context/DarkModeContext.jsx';
+
+function AppTheme(props) {
+
+
+  return (
+    <DarkModeProvider initDarkMode={false}>
+      <HeaderTheme />
+      <MainTheme />
+      <FooterTheme/>
+    </DarkModeProvider>
+  );
+}
+
+export default AppTheme;
+```
+
+```jsx
+import { DarkModeProvider } from '../../context/DarkModeContext';
+import Card from '../Card';
+export default function Main() {
+  return (
+    <main>
+      <DarkModeProvider>
+        <Card title="제목" >
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptatibus iste laborum iusto ipsa cum est dolorum pariatur eaque ipsam at, sunt exercitationem dolor magnam, et esse. Porro laborum eligendi nemo.
+        </Card>
+      </DarkModeProvider>
+    </main>
+  );
+}
+```
+
+```jsx
+import {useContext} from "react";
+import {DarkModeContext} from '../../context/DarkModeContext';
+
+export default function Header() {
+
+  const {darkMode, toggleDarkMode} = useContext(DarkModeContext);
+  return (
+    // header--dark
+    <header className={`header ${darkMode ? 'header--dark' : 'header--light'}`}> 
+      <h1 className="header__title">헤더 컴포넌트</h1>
+      <button className="header__button" onClick={toggleDarkMode}>
+        {darkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
+      </button>
+    </header>
+  );
+};
+```
+
