@@ -41,6 +41,7 @@ export default function todoReducer(draft, action){
         //       }
         //       return item;
         //     })
+        break;
       }
       case 'reverse':{
         return draft.toReversed();

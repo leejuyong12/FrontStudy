@@ -1875,3 +1875,22 @@ export default function Header() {
 };
 ```
 
+
+
+- AppTodo로 실습
+
+```
+//구조
+AppTodo
+--TodoProvider
+----Context.Provider
+-------Context.Provider
+---------AddTodo
+---------TodoList
+-----------TodoItem
+-----------TodoItem
+
+```
+
+
+
