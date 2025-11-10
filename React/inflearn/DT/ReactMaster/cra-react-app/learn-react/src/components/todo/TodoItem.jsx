@@ -1,4 +1,3 @@
-import {useContext} from 'react';
 import {useTodosDispatch} from '../../context/TodoContext';
 
 

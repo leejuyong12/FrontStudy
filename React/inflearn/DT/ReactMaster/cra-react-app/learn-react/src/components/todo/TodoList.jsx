@@ -1,5 +1,4 @@
 import TodoItem from './TodoItem';
-import {useContext} from 'react';
 import { useTodos } from '../../context/TodoContext';
 
 function TodoList(){

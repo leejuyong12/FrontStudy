@@ -1,4 +1,4 @@
-import {useState, useContext } from 'react';
+import {useState } from 'react';
 import { useTodosDispatch, useTodos } from '../../context/TodoContext';
 
 export default function AddTodo({onAddTodo}){
