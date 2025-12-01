@@ -1,5 +1,6 @@
 import { useState } from "react";
-
+import { Router, Routes, Route } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 interface Todo{
     id: number;
     text : string;
@@ -9,6 +10,8 @@ interface Todo{
 
 
 export default function TodoList() {
+    const navigate = useNavigate();
+
     const [todos, setTodos] = useState<Todo[]>([]);
     const [input, setInput] = useState('')
     
@@ -44,24 +47,30 @@ export default function TodoList() {
             {/* 할 일 입력 */}
 
             {/* 할 일 목록 */}
-            <ul>
-                {todos.map((todo)=>(
-                    <li
-                        key={todo.id}
-                    >
-                    
-                    <input
-                        type="checkbox"
-                        checked={todo.done}
-                        onChange={()=>toggleTodo(todo.id)}
-                    ></input>
-                    <span>{todo.text}</span>
-                    <button onClick={()=> deleteTodo(todo.id)}>X</button>
-                    </li>
-                    
-                ))}
 
-            </ul>
+                <Routes>
+                <ul>
+                    {todos.map((todo)=>(
+                        <li
+                            key={todo.id}
+                        >
+                        <input
+                            type="checkbox"
+                            checked={todo.done}
+                            onChange={()=>toggleTodo(todo.id)}
+                        ></input>
+                        <span
+                            onClick={()=> navigate('/TodoInfo')}
+                            style={{ cursor: "pointer", marginLeft: "8px" }}
+                        >{todo.text}
+                        </span>
+                        <button onClick={()=> deleteTodo(todo.id)}>X</button>
+                        </li>
+                        
+                    ))}
+                </ul>
+                </Routes>
+
             {/* 할 일 목록 */}
             
         </div>
