@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Router, Routes, Route } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 interface Todo{
     id: number;
@@ -7,7 +6,7 @@ interface Todo{
     done: boolean;
 }
 
-
+//다음 할일은 TodoInfo에서 목록으로 나가도 여기서 AddTodo 한게 유지되도록 하기
 
 export default function TodoList() {
     const navigate = useNavigate();
@@ -31,6 +30,10 @@ export default function TodoList() {
     const deleteTodo = (id:number) => {
         setTodos(todos.filter((t) => t.id !== id))
     }
+
+    const goInfo = (id:number, text:string, done:boolean) => {
+	    navigate(`/TodoInfo/${id}` , {state : {text, done} });
+    }
     return (
         <div>
             <h1>Todo List</h1>
@@ -48,7 +51,7 @@ export default function TodoList() {
 
             {/* 할 일 목록 */}
 
-                <Routes>
+
                 <ul>
                     {todos.map((todo)=>(
                         <li
@@ -60,7 +63,7 @@ export default function TodoList() {
                             onChange={()=>toggleTodo(todo.id)}
                         ></input>
                         <span
-                            onClick={()=> navigate('/TodoInfo')}
+                            onClick={()=> goInfo(todo.id, todo.text, todo.done)}
                             style={{ cursor: "pointer", marginLeft: "8px" }}
                         >{todo.text}
                         </span>
@@ -69,7 +72,7 @@ export default function TodoList() {
                         
                     ))}
                 </ul>
-                </Routes>
+
 
             {/* 할 일 목록 */}
             
